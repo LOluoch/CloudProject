@@ -3,25 +3,31 @@ import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.impute import SimpleImputer
 
 app = Flask(__name__)
 
 # Load dataset
-data_train = pd.read_csv('loan_train.csv')
-data_test = pd.read_csv('loan_test.csv')
+data_train = pd.read_csv('loan-train.csv')
+data_test = pd.read_csv('loan-test.csv')
 
 # Define features and target variable
 features = ['ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History']
 target = 'Loan_Status'
 
 # Prepare data
-X_train = data_train[features]
-y_train = data_train[target]
-X_test = data_test[features]
-y_test = data_test[target]
+X = data_train[features]
+y = data_train[target]
+
+imputer = SimpleImputer(strategy='mean')
+X = imputer.fit_transform(X)
+
+# Prepare data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 clf = DecisionTreeClassifier()
 clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
 
 @app.route("/")
 def loan_calc():
